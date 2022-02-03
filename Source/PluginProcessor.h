@@ -57,8 +57,14 @@ public:
 
 private:
 
+   // float input{ 0,0 };
+   // float drive{ 0,0 };
+
+    const float piDivisor = 2.f / juce::MathConstants<float>::pi; // constante piDivisor pour simplifier la formule de distortion , 2 divise pi 
+
     juce::ScopedPointer<juce::AudioProcessorValueTreeState> state;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DistoVSTAudioProcessor)
 };
+

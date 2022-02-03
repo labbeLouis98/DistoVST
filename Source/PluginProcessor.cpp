@@ -22,9 +22,19 @@ DistoVSTAudioProcessor::DistoVSTAudioProcessor()
                        )
 #endif
 {
+    //
+
     state = new juce::AudioProcessorValueTreeState(*this, nullptr);
 
-    
+    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);  //definit la valeur depart (min) , la valeur fin (max) , la valeur intervalle (de cmb on augmente) 
+    state->createAndAddParameter("range", "Range", "Range", juce::NormalisableRange<float>(0.f, 3000.f, 0.0001), 1.0, nullptr, nullptr);
+    state->createAndAddParameter("mix", "Mix", "Mix", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);
+    state->createAndAddParameter("volume", "Volume", "Volume", juce::NormalisableRange<float>(0.f, 3.f, 0.0001), 1.0, nullptr, nullptr); 
+
+    state->state = juce::ValueTree("drive"); // le state des data du parametre = valeur du parametre
+    state->state = juce::ValueTree("range");
+    state->state = juce::ValueTree("mix");
+    state->state = juce::ValueTree("volume");
 }
 
 DistoVSTAudioProcessor::~DistoVSTAudioProcessor()
@@ -147,17 +157,48 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    
+
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
+
+    float drive = *state->getRawParameterValue("drive");   //definit la valeur des parametres
+    float range = *state->getRawParameterValue("range");   //prend la valeur du parametre definit
+    float mix = *state->getRawParameterValue("mix") / 100.0 ; // la valeur du mix est entre 0 et 1
+    float volume = *state->getRawParameterValue("volume");
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+        // ..do something to the data...                                       // ou on applique la distortion
+                                                                               // pour chaque sample on distortionne le signal audio
+        for (int sample = 0; sample < buffer.getNumSamples(); sample++) {      // creation dune boucle for
+
+
+            //float cleanSig = *channelData; // clean signal avant la distorsion
+
+            *channelData *= drive * range;
+
+            // *channelData *= (((((piDivisor) * atan(*channelData)) * mix) + (cleanSig * (1.f - mix))) /2.f) * volume; //fonction de disto le signal est multiplier par (2/pi) * atan(x)
+            // melange le clean sign avec la disto
+            //multipli le mix avec le volume (output)
+
+            const auto disto = ((piDivisor)*atan(*channelData));
+
+             auto leMix = *channelData * (1.0 - mix) + disto * mix;
+
+             leMix *= *channelData;
+
+            
+
+            channelData++;    // increment le point pour que ca pointe vers le prochain channel data
+        }                                                                  
+       
     }
 }
 
@@ -183,12 +224,24 @@ void DistoVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+
+    juce::MemoryOutputStream stream(destData, false); //ecrit le data dans le buffer intern 
+    state->state.writeToStream(stream);               //recupere le state du data pour l ecrire
+                                                      //quand le data est ecrit on peut le lire
 }
 
 void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    juce::ValueTree tree = juce::ValueTree::readFromData(data, sizeInBytes);
+
+    if (tree.isValid()) {                                  //verifi si le data est valide
+                                                           //si oui le data peut etre lu
+        state->state = tree;   
+
+    }
 }
 
 //==============================================================================
