@@ -26,15 +26,18 @@ DistoVSTAudioProcessor::DistoVSTAudioProcessor()
 
     state = new juce::AudioProcessorValueTreeState(*this, nullptr);
 
-    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);  //definit la valeur depart (min) , la valeur fin (max) , la valeur intervalle (de cmb on augmente) 
-    state->createAndAddParameter("range", "Range", "Range", juce::NormalisableRange<float>(0.f, 3000.f, 0.0001), 1.0, nullptr, nullptr);
+    state->createAndAddParameter("inputDB", "Input", "Input", juce::NormalisableRange<float>(0.01f, 1.f, 0.0001), 1.0, nullptr, nullptr);
+    state->createAndAddParameter("driveDB", "Drive", "Drive", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);  //definit la valeur depart (min) , la valeur fin (max) , la valeur intervalle (de cmb on augmente) 
+   
     state->createAndAddParameter("mix", "Mix", "Mix", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);
-    state->createAndAddParameter("volume", "Volume", "Volume", juce::NormalisableRange<float>(0.f, 3.f, 0.0001), 1.0, nullptr, nullptr); 
+    state->createAndAddParameter("volumeDB", "Volume", "Volume", juce::NormalisableRange<float>(0.01f, 1.f, 0.0001), 1.0, nullptr, nullptr); 
 
-    state->state = juce::ValueTree("drive"); // le state des data du parametre = valeur du parametre
-    state->state = juce::ValueTree("range");
+
+    state->state = juce::ValueTree("inputDB");
+    state->state = juce::ValueTree("driveDB"); // le state des data du parametre = valeur du parametre
+    
     state->state = juce::ValueTree("mix");
-    state->state = juce::ValueTree("volume");
+    state->state = juce::ValueTree("volumeDB");
 }
 
 DistoVSTAudioProcessor::~DistoVSTAudioProcessor()
@@ -148,28 +151,16 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+   
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
     
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-
-    float drive = *state->getRawParameterValue("drive");   //definit la valeur des parametres
-    float range = *state->getRawParameterValue("range");   //prend la valeur du parametre definit
-    float mix = *state->getRawParameterValue("mix") / 100.0 ; // la valeur du mix est entre 0 et 1
-    float volume = *state->getRawParameterValue("volume");
+    float inputDB = *state->getRawParameterValue("inputDB");
+    float driveDB = *state->getRawParameterValue("driveDB");   //definit la valeur des parametres
+       //prend la valeur du parametre definit
+    float mix = *state->getRawParameterValue("mix") / 100.0; // la valeur du mix est entre 0 et 1 ///////////////////////////////////////////////////changement ^
+    float volumeDB = *state->getRawParameterValue("volumeDB");
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -179,24 +170,44 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                                                                                // pour chaque sample on distortionne le signal audio
         for (int sample = 0; sample < buffer.getNumSamples(); sample++) {      // creation dune boucle for
 
+            
+            
+             //-----------------------------------------------------------------------nouvelle version disto-------------------------------------------------//
+            
+            for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+
+                const auto input = channelData[sample] * juce::Decibels::decibelsToGain(inputDB);
+
+                const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(driveDB));
+
+                auto melange = input * (1.0 - mix) + disto * mix;
+
+                melange *= juce::Decibels::decibelsToGain(volumeDB);
+
+                channelData[sample] = melange;
+            }
+
+            
+
+            //----------------------------------------------------------------------------------premiere version disto----------------------------//
+
 
             //float cleanSig = *channelData; // clean signal avant la distorsion
 
-            *channelData *= drive * range;
+            //*channelData *= drive * input;
 
             // *channelData *= (((((piDivisor) * atan(*channelData)) * mix) + (cleanSig * (1.f - mix))) /2.f) * volume; //fonction de disto le signal est multiplier par (2/pi) * atan(x)
             // melange le clean sign avec la disto
             //multipli le mix avec le volume (output)
 
-            const auto disto = ((piDivisor)*atan(*channelData));
+            //const auto disto = ((piDivisor)*atan(*channelData));
 
-             auto leMix = *channelData * (1.0 - mix) + disto * mix;
+             //auto leMix = *channelData * (1.0 - mix) + disto * mix;
 
-             leMix *= *channelData;
+             //leMix *= *channelData;
 
+           //channelData++;    // increment le point pour que ca pointe vers le prochain channel data
             
-
-            channelData++;    // increment le point pour que ca pointe vers le prochain channel data
         }                                                                  
        
     }

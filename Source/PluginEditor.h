@@ -26,13 +26,15 @@ public:
 
 private:
 
+    juce::ScopedPointer<juce::Slider> inputKnob; //input pointer
     juce::ScopedPointer<juce::Slider> driveKnob;
-    juce::ScopedPointer<juce::Slider> rangeKnob;
+    
     juce::ScopedPointer<juce::Slider> mixKnob;
     juce::ScopedPointer<juce::Slider> volumeKnob;
 
+    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> inputAttachment;  // input attachement
     juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> rangeAttachment;
+    
     juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
     juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
 
