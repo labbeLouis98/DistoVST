@@ -55,12 +55,16 @@ public:
 
     juce::AudioProcessorValueTreeState& getState();
 
+    //juce::AudioProcessorValueTreeState apvts; //creation de l objet tree state
+
 private:
 
-    float inputDB{ 0.0 };  //valeur du input par defaut
-    float driveDB{ 0.0 };
-    float mix{ 0 };
-    float volumeDB{ 0.0 };
+    //juce::AudioProcessorValueTreeState::ParameterLayout createParamaters();
+
+    //float inputDB{ 0.0 };  //valeur du input par defaut
+    //float driveDB{ 0.0 };
+   // float mix{ 0 };
+   // float volumeDB{ 0.0 };
 
     const float piDivisor = 2.f / juce::MathConstants<float>::pi; // constante piDivisor pour simplifier la formule de distortion , 2 divise pi 
 

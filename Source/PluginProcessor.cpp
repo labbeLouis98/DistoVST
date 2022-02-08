@@ -26,8 +26,8 @@ DistoVSTAudioProcessor::DistoVSTAudioProcessor()
 
     state = new juce::AudioProcessorValueTreeState(*this, nullptr);
 
-    state->createAndAddParameter("inputDB", "Input", "Input", juce::NormalisableRange<float>(0.01f, 1.f, 0.0001), 1.0, nullptr, nullptr);
-    state->createAndAddParameter("driveDB", "Drive", "Drive", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);  //definit la valeur depart (min) , la valeur fin (max) , la valeur intervalle (de cmb on augmente) 
+    state->createAndAddParameter("inputDB", "Input", "Input", juce::NormalisableRange<float>(0.5f, 1.f, 0.0001), 1.0, nullptr, nullptr);
+    state->createAndAddParameter("driveDB", "Drive", "Drive", juce::NormalisableRange<float>(0.f, 5000.f, 0.0001), 1.0, nullptr, nullptr);  //definit la valeur depart (min) , la valeur fin (max) , la valeur intervalle (de cmb on augmente) 
    
     state->createAndAddParameter("mix", "Mix", "Mix", juce::NormalisableRange<float>(0.f, 1.f, 0.0001), 1.0, nullptr, nullptr);
     state->createAndAddParameter("volumeDB", "Volume", "Volume", juce::NormalisableRange<float>(0.01f, 1.f, 0.0001), 1.0, nullptr, nullptr); 
@@ -155,59 +155,64 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+
+    // parametre pour tout les knobs
     
     float inputDB = *state->getRawParameterValue("inputDB");
-    float driveDB = *state->getRawParameterValue("driveDB");   //definit la valeur des parametres
+    float driveDB = *state->getRawParameterValue("driveDB");   //definit la valeur des parametres en lisant c le state des parametres en temps reels
        //prend la valeur du parametre definit
-    float mix = *state->getRawParameterValue("mix") / 100.0; // la valeur du mix est entre 0 et 1 ///////////////////////////////////////////////////changement ^
+    float mix = *state->getRawParameterValue("mix"); 
     float volumeDB = *state->getRawParameterValue("volumeDB");
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        float* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...                                       // ou on applique la distortion
                                                                                // pour chaque sample on distortionne le signal audio
-        for (int sample = 0; sample < buffer.getNumSamples(); sample++) {      // creation dune boucle for
+        for (int sample = 0; sample < buffer.getNumSamples(); sample++) 
+        
+        {      // creation dune boucle for
 
             
             
              //-----------------------------------------------------------------------nouvelle version disto-------------------------------------------------//
+           
             
-            for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
 
-                const auto input = channelData[sample] * juce::Decibels::decibelsToGain(inputDB);
+                const auto input = *channelData * juce::Decibels::decibelsToGain(inputDB);
 
                 const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(driveDB));
 
-                auto melange = input * (1.0 - mix) + disto * mix;
+                auto melange = input * (1.0 - (mix/100)) + disto * (mix/100);
 
                 melange *= juce::Decibels::decibelsToGain(volumeDB);
 
-                channelData[sample] = melange;
-            }
-
+                *channelData = melange;
+           
+                channelData++; // increment le point pour que ca pointe vers le prochain channel data
             
 
             //----------------------------------------------------------------------------------premiere version disto----------------------------//
 
 
-            //float cleanSig = *channelData; // clean signal avant la distorsion
+           /* float cleanSig = *channelData; // clean signal avant la distorsion
 
-            //*channelData *= drive * input;
+            *channelData *= driveDB * inputDB;
 
-            // *channelData *= (((((piDivisor) * atan(*channelData)) * mix) + (cleanSig * (1.f - mix))) /2.f) * volume; //fonction de disto le signal est multiplier par (2/pi) * atan(x)
-            // melange le clean sign avec la disto
+             *channelData *= (((((piDivisor) * atan(*channelData)) * mix) + (cleanSig * (1.f - mix))) /2.f) * volumeDB; //fonction de disto le signal est multiplier par (2/pi) * atan(x)
+             // clean sign avec la disto
             //multipli le mix avec le volume (output)
 
-            //const auto disto = ((piDivisor)*atan(*channelData));
+            const auto disto = ((piDivisor)*atan(*channelData));
 
-             //auto leMix = *channelData * (1.0 - mix) + disto * mix;
+             auto leMix = *channelData * (1.0 - mix) + disto * mix; 
 
-             //leMix *= *channelData;
+             leMix *= *channelData;
 
-           //channelData++;    // increment le point pour que ca pointe vers le prochain channel data
+           channelData++;    // increment le point pour que ca pointe vers le prochain channel data
             
+            */
         }                                                                  
        
     }
