@@ -26,18 +26,19 @@ public:
 
 private:
 
-    juce::ScopedPointer<juce::Slider> inputKnob; //input pointer
-    juce::ScopedPointer<juce::Slider> driveKnob;
-    
-    juce::ScopedPointer<juce::Slider> mixKnob;
-    juce::ScopedPointer<juce::Slider> volumeKnob;
+    void setSliderParams(juce::Slider& slider);
 
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> inputAttachment;  // input attachement
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
-    
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
+    juce::Slider inputKnob; //input pointer
+    juce::Slider driveKnob;
+    juce::Slider mixKnob;
+    juce::Slider volumeKnob;
 
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputAttachment;  // input attachement
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
+    
 
 
     // This reference is provided as a quick way for your editor to

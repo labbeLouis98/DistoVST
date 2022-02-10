@@ -10,6 +10,18 @@
 
 #include <JuceHeader.h>
 
+struct ChainSettings
+{
+    float inputDB{ 0 };
+    float driveDB{ 0 };
+    float mix{ 0 };
+    float volumeDB{ 0 };
+
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+
 //==============================================================================
 /**
 */
@@ -53,22 +65,24 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::AudioProcessorValueTreeState& getState();
+    //juce::AudioProcessorValueTreeState& getState();
 
-    //juce::AudioProcessorValueTreeState apvts; //creation de l objet tree state
+    juce::AudioProcessorValueTreeState apvts; //creation de l objet tree state
+
+    void updateParams(const float input, const float drive, const float mix, const float volume);
 
 private:
 
-    //juce::AudioProcessorValueTreeState::ParameterLayout createParamaters();
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
-    //float inputDB{ 0.0 };  //valeur du input par defaut
-    //float driveDB{ 0.0 };
-   // float mix{ 0 };
-   // float volumeDB{ 0.0 };
 
-    const float piDivisor = 2.f / juce::MathConstants<float>::pi; // constante piDivisor pour simplifier la formule de distortion , 2 divise pi 
 
-    juce::ScopedPointer<juce::AudioProcessorValueTreeState> state;
+    //using Monochain = juce::dsp::ProcessorChain<>
+    //MonoChain leftChain
+
+   const float piDivisor = 2.f / juce::MathConstants<float>::pi; // constante piDivisor pour simplifier la formule de distortion , 2 divise pi 
+
+    //juce::ScopedPointer<juce::AudioProcessorValueTreeState> state;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DistoVSTAudioProcessor)

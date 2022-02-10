@@ -14,27 +14,16 @@ DistoVSTAudioProcessorEditor::DistoVSTAudioProcessorEditor (DistoVSTAudioProcess
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
 
-    addAndMakeVisible(inputKnob = new juce::Slider("InputDB"));
-    inputKnob->setSliderStyle(juce::Slider::Rotary);
-    inputKnob->setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);  //input knob style
+    setSliderParams(inputKnob); // reference a la construction dun slider (void en bas)
+    setSliderParams(driveKnob);
+    setSliderParams(mixKnob);
+    setSliderParams(volumeKnob);
 
-    addAndMakeVisible(driveKnob = new juce::Slider("DriveDB"));
-    driveKnob->setSliderStyle(juce::Slider::Rotary);
-    driveKnob->setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
-
-    addAndMakeVisible(mixKnob = new juce::Slider("Mix"));
-    mixKnob->setSliderStyle(juce::Slider::Rotary);
-    mixKnob->setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
-
-    addAndMakeVisible(volumeKnob = new juce::Slider("VolumeDB")); // on cree un knob 
-    volumeKnob->setSliderStyle(juce::Slider::Rotary); // son style
-    volumeKnob->setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100); // la taille du text box
-
-    inputAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "inputDB", *inputKnob);
-    driveAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "driveDB", *driveKnob); // on attache le parametre audio du drive au knob du drive
     
-    mixAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "mix", *mixKnob);
-    volumeAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "volumeDB", *volumeKnob);
+    inputAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "INPUTDB", inputKnob); //reference le data du processor au knob 
+    driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVEDB", driveKnob);
+    mixAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "MIX", mixKnob);
+    volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "VOLUMEDB", volumeKnob);
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -49,11 +38,11 @@ DistoVSTAudioProcessorEditor::~DistoVSTAudioProcessorEditor()
 void DistoVSTAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+
+    g.fillAll (juce::Colours::black);
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-   // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 
     g.drawText("InputDB", ((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);  // ecrit un texte a lemplacement design
     g.drawText("DriveDB", ((getWidth() / 5) * 2) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
@@ -65,11 +54,24 @@ void DistoVSTAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-
-    inputKnob->setBounds(((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
-    driveKnob->setBounds(((getWidth() / 5) * 2) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);  // on divise lespace pour que chaque knob soient centre
+    
+    // on divise lespace pour que chaque knob soient centre
+    inputKnob.setBounds(((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
+    driveKnob.setBounds(((getWidth() / 5) * 2) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);  
      
-    mixKnob->setBounds(((getWidth() / 5) * 3) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
-    volumeKnob->setBounds(((getWidth() / 5) * 4) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
+    mixKnob.setBounds(((getWidth() / 5) * 3) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
+    volumeKnob.setBounds(((getWidth() / 5) * 4) - (100 / 2), (getHeight() / 2) - (100 / 2), 100, 100);
 
+}
+
+void DistoVSTAudioProcessorEditor::setSliderParams(juce::Slider& slider)   // fonction qui definit un slider 
+
+                                                                           // evite de repetter le code pour crer plusieurs slider
+{
+    slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 50);
+    
+    addAndMakeVisible(slider);
+
+    
 }
