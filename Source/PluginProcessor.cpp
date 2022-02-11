@@ -23,7 +23,7 @@ DistoVSTAudioProcessor::DistoVSTAudioProcessor()
 #endif
 
 {
-    
+    apvts.state = juce::ValueTree("ParameterSaved");
 }
 
 DistoVSTAudioProcessor::~DistoVSTAudioProcessor()
@@ -176,15 +176,15 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
              //-----------------------------------------------------------------------nouvelle version disto-------------------------------------------------//
             
             
-                const auto input = *channelData * juce::Decibels::decibelsToGain(chainSettings.inputDB);
+                const auto input = *channelData * juce::Decibels::decibelsToGain(chainSettings.inputDB); // le signal audio a l entre du circuit est muliplie par le input gain knob en decibel
 
-                const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB));
+                const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB)); // la disto est egal a 2/ par pi multiplie par la atan du input x la valeur du knob de drive
 
-                auto melange = input * (1.0 - chainSettings.mix) + disto * chainSettings.mix;
+                auto melange = input * (1.0 - chainSettings.mix) + disto * chainSettings.mix; // le melange dry/wet du signal est egal au input multiplie par 1 - le mix(100%) + la disto multiplie le mix(100%) 
 
-                melange *= juce::Decibels::decibelsToGain(chainSettings.volumeDB);
+                melange *= juce::Decibels::decibelsToGain(chainSettings.volumeDB); // le volume multipli le signal qui sort su melange dry/wet
 
-                *channelData = melange;
+                *channelData = melange; //
 
                 channelData++; // increment le point pour que ca pointe vers le prochain channel data
 
@@ -212,6 +212,9 @@ void DistoVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
     
 }
 
@@ -219,6 +222,18 @@ void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr) 
+    {
+        if (xmlState->hasTagName(apvts.state.getType())) {
+
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        }
+            
+    }
+        
     
 }
 
@@ -233,12 +248,12 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
     ChainSettings settings;
 
-  settings.inputDB = apvts.getRawParameterValue("INPUTDB")->load();
+  settings.inputDB = apvts.getRawParameterValue("INPUTDB")->load(); // vas chercher la valeur du parametre en temps reel
   settings.driveDB = apvts.getRawParameterValue("DRIVEDB")->load();
   settings.mix = apvts.getRawParameterValue("MIX")->load();
   settings.volumeDB = apvts.getRawParameterValue("VOLUMEDB")->load();
 
-    return settings;
+    return settings; //retourne la valeur
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout DistoVSTAudioProcessor::createParameters() {
@@ -247,7 +262,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DistoVSTAudioProcessor::crea
 
     // param disto data audio process
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("INPUTDB", "InputDB", -48.0f, 48.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("INPUTDB", "InputDB", -48.0f, 48.0f, 0.0f)); 
    
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVEDB", "DriveDB", 0.0f, 20.0f, 0.0f));

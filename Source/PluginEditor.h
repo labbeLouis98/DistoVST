@@ -33,17 +33,16 @@ private:
     juce::Slider mixKnob;
     juce::Slider volumeKnob;
 
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
+    DistoVSTAudioProcessor& audioProcessor;
+
+    public:
     
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputAttachment;  // input attachement
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
     
-
-
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    DistoVSTAudioProcessor& audioProcessor;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DistoVSTAudioProcessorEditor)
 };

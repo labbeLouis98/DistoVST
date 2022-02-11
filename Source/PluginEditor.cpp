@@ -21,7 +21,7 @@ DistoVSTAudioProcessorEditor::DistoVSTAudioProcessorEditor (DistoVSTAudioProcess
 
     
     inputAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "INPUTDB", inputKnob); //reference le data du processor au knob 
-    driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVEDB", driveKnob);
+    driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVEDB", driveKnob); //alocate la memoire de notre slider attachement
     mixAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "MIX", mixKnob);
     volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "VOLUMEDB", volumeKnob);
 
@@ -41,7 +41,7 @@ void DistoVSTAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.fillAll (juce::Colours::black);
 
-    g.setColour (juce::Colours::white);
+    g.setColour (juce::Colours::red);
     g.setFont (15.0f);
 
     g.drawText("InputDB", ((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);  // ecrit un texte a lemplacement design

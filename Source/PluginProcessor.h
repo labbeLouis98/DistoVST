@@ -67,6 +67,8 @@ public:
 
     //juce::AudioProcessorValueTreeState& getState();
 
+    
+
     juce::AudioProcessorValueTreeState apvts; //creation de l objet tree state
 
     void updateParams(const float input, const float drive, const float mix, const float volume);
