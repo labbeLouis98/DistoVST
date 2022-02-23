@@ -23,7 +23,7 @@ DistoVSTAudioProcessor::DistoVSTAudioProcessor()
 #endif
 
 {
-    apvts.state = juce::ValueTree("ParameterSaved");
+    //apvts.state = juce::ValueTree("ParameterSaved");
 }
 
 DistoVSTAudioProcessor::~DistoVSTAudioProcessor()
@@ -101,6 +101,8 @@ void DistoVSTAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
     auto chainSettings = getChainSettings(apvts);
 
+
+
     
 }
 
@@ -171,12 +173,20 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
            
         {      // creation dune boucle for
 
-            auto chainSettings = getChainSettings(apvts); // attache la class chainSetting de nos paramêtres
-            
+            auto chainSettings = getChainSettings(apvts); // attache la class chainSetting de nos paramÃªtres
+
+            //bool myBypass = toggleBypas;
              //-----------------------------------------------------------------------nouvelle version disto-------------------------------------------------//
             
             
-                const auto input = *channelData * juce::Decibels::decibelsToGain(chainSettings.inputDB); // le signal audio a l entre du circuit est muliplie par le input gain knob en decibel
+            // processing disto
+
+
+            if (!chainSettings.toggleBypass) // on verifi si le circuit est bypass
+            {
+                 // le signal audio a l entre du circuit est muliplie par le input gain knob en decibel
+
+                const auto input = *channelData * juce::Decibels::decibelsToGain(chainSettings.inputDB);
 
                 const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB)); // la disto est egal a 2/ par pi multiplie par la atan du input x la valeur du knob de drive
 
@@ -187,6 +197,13 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                 *channelData = melange; //
 
                 channelData++; // increment le point pour que ca pointe vers le prochain channel data
+            }
+
+            else {
+
+                *channelData;
+            }
+                
 
         }                                                                  
        
@@ -211,11 +228,15 @@ void DistoVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
+
+    juce::MemoryOutputStream mos(destData, true); // save la state du plugin
+    apvts.state.writeToStream(mos);
+
+    /*
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
-    
+    */
 }
 
 void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -223,6 +244,17 @@ void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 
+
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+
+    if(tree.isValid()) 
+    
+    {
+        apvts.replaceState(tree);
+
+    }
+
+    /*
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState.get() != nullptr) 
@@ -233,7 +265,7 @@ void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBy
         }
             
     }
-        
+        */
     
 }
 
@@ -252,7 +284,8 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
   settings.driveDB = apvts.getRawParameterValue("DRIVEDB")->load();
   settings.mix = apvts.getRawParameterValue("MIX")->load();
   settings.volumeDB = apvts.getRawParameterValue("VOLUMEDB")->load();
-
+  
+  settings.toggleBypass = apvts.getRawParameterValue("BYPASS")->load();
     return settings; //retourne la valeur
 }
 
@@ -262,17 +295,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout DistoVSTAudioProcessor::crea
 
     // param disto data audio process
     
+    // float
     params.push_back(std::make_unique<juce::AudioParameterFloat>("INPUTDB", "InputDB", -48.0f, 48.0f, 0.0f)); 
    
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVEDB", "DriveDB", 0.0f, 20.0f, 0.0f));
     
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("MIX", "Mix", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("MIX", "Mix", 0.0f, 1.0f, 1.0f));
    
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUMEDB", "VolumeDB", -48.0f, 12.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUMEDB", "VolumeDB", -48.0f, 48.0f, 0.0f));
    
+
+    //bool
+    params.push_back(std::make_unique<juce::AudioParameterBool>("BYPASS", "BypassDB", false )); // variable bool pour bypass le circuit (false par defaut)
 
     return { params.begin(), params.end() };
 

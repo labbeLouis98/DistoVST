@@ -61,13 +61,13 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <FILTER uid="5" x="0.51625" y="0.4495967741935484" uiLastX_Normal="1170"
-          uiLastY_Normal="313" uiopen_Normal="1">
+  <FILTER uid="5" x="0.50375" y="0.3971774193548387" uiLastX_Normal="547"
+          uiLastY_Normal="363" uiopen_Normal="0">
     <PLUGIN name="DistoVST" format="VST3" category="Fx|Distortion" manufacturer="AudioShinobi"
-            version="1.0.0" file="C:\Program Files\Common Files\VST3\JUCE\DistoVST\DistoVST.vst3"
-            uniqueId="fea5e72f" isInstrument="0" fileTime="17ee46a0765" infoUpdateTime="17ee9e3a57f"
+            version="1.0.0" file="C:\Program Files\Common Files\VST3\DistoVST.vst3"
+            uniqueId="fea5e72f" isInstrument="0" fileTime="17f188dcbc1" infoUpdateTime="17f188fe54e"
             numInputs="2" numOutputs="2" isShell="0" uid="e95901ea"/>
-    <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
+    <STATE>420.VMjLgrY....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9HyLw3BTEwlXmAiUYoWUrIVdA4hKAAkKTETRUAUSAAkKBolQY4BQPITQPoFUIkUUQQTRD4RLEYTXvTkQtDjZtDjKt3hKt3hKt3hKt3BTEoFUAACQtDDRPokZAAkKIQETR4TPUUEUQoFTtf0UXIWUWkkKDAkPD4hKt3hKt3hKt3hKt3RUPIUQTMkKDYlKuEkQtDDUPETSqQjUtf0UXIWUWkkKDAkPD4hKt3hKt3hKtjySt3RUPIUQTMkKDYlKuEkQtDjaPEjU3PzTUACUQQTRD4RLEYTXvTkQtDjZtDjKt3hKt3hKt3hKt3hKt3hKt3hKt3hKlIUUMQUTPkzUZESQFM1ZQQEV5UjQtDDQlAEMAcEV40zQtDDQ14hK5EjKt3hKt3hKt3hRUACTEEzZh8VVWgkdUYTTmE0UXwyKIMzasA2atUlaz4COuX0TTMCTrU2Yo41TzEFck4C.</STATE>
     <LAYOUT>
       <INPUTS>
         <BUS index="0" layout="L R"/>

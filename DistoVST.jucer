@@ -14,6 +14,24 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="pnBPGM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <GROUP id="{55101967-7797-CEEA-BB09-542BB7A3DA3D}" name="Ressources">
+      <FILE id="hZReqa" name="center_knob.png" compile="0" resource="1" file="Ressources/center_knob.png"/>
+      <FILE id="UNn6ff" name="outter_knob.png" compile="0" resource="1" file="Ressources/outter_knob.png"/>
+      <FILE id="U2PoE0" name="vstBackground.png" compile="0" resource="1"
+            file="Ressources/vstBackground.png"/>
+      <FILE id="x4ryF9" name="vstbrandName.png" compile="0" resource="1"
+            file="Ressources/vstbrandName.png"/>
+      <FILE id="LBBFDM" name="vstbutton.png" compile="0" resource="1" file="Ressources/vstbutton.png"/>
+      <FILE id="iGNwnm" name="vstbuttonround.png" compile="0" resource="1"
+            file="Ressources/vstbuttonround.png"/>
+      <FILE id="sJ63tN" name="vstCenter.png" compile="0" resource="1" file="Ressources/vstCenter.png"/>
+      <FILE id="dN2rTB" name="vstfader_rail.png" compile="0" resource="1"
+            file="Ressources/vstfader_rail.png"/>
+      <FILE id="hxaXjM" name="vstknob.png" compile="0" resource="1" file="Ressources/vstknob.png"/>
+      <FILE id="RxYCnQ" name="vstmenu.png" compile="0" resource="1" file="Ressources/vstmenu.png"/>
+      <FILE id="VnOsY2" name="vsttip_fader.png" compile="0" resource="1"
+            file="Ressources/vsttip_fader.png"/>
+    </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
@@ -36,6 +54,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../../../AudioDev/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../../../AudioDev/JUCE/modules"/>
         <MODULEPATH id="juce_dsp" path="../../../../../../../AudioDev/JUCE/modules"/>
+        <MODULEPATH id="viator_modules" path="../../../../../../../AudioDev/juce_user/juce_viator_gui"/>
       </MODULEPATHS>
     </VS2022>
     <VS2019 targetFolder="Builds/VisualStudio2019">
@@ -57,6 +76,7 @@
         <MODULEPATH id="juce_gui_basics" path="C:\AudioDev\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:\AudioDev\JUCE\modules"/>
         <MODULEPATH id="juce_dsp" path="../../../../../../../AudioDev/JUCE/modules"/>
+        <MODULEPATH id="viator_modules" path="../../../../../../../AudioDev/juce_user/juce_viator_gui"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
@@ -75,5 +95,6 @@
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="viator_modules" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
 </JUCERPROJECT>

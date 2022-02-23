@@ -12,10 +12,13 @@
 
 struct ChainSettings
 {
+    //float
     float inputDB{ 0 };
     float driveDB{ 0 };
     float mix{ 0 };
     float volumeDB{ 0 };
+    // bool
+    bool toggleBypass{ false };
 
 };
 
@@ -86,6 +89,13 @@ private:
 
     //juce::ScopedPointer<juce::AudioProcessorValueTreeState> state;
 
+
+   // Bypass Toggle
+   
+   bool myBypass = false; 
+
+   
+   //
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DistoVSTAudioProcessor)
 };
