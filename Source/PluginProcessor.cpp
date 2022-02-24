@@ -101,9 +101,11 @@ void DistoVSTAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
     auto chainSettings = getChainSettings(apvts);
 
+    rmsLevelLeft.reset(sampleRate, 0.5);
+    rmsLevelRight.reset(sampleRate, 0.5); // smooth le temps pour que le meter anime entre 2 valeurs
 
-
-    
+    rmsLevelLeft.setCurrentAndTargetValue(-100.0f); 
+    rmsLevelRight.setCurrentAndTargetValue(-100.0f);
 }
 
 
@@ -155,6 +157,7 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+    
    
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -163,10 +166,6 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     {
         float* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...     
-        // 
-        //                                   // ou on applique la distortion
-        
         // pour chaque sample on distortionne le signal audio
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
 
@@ -175,9 +174,6 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
             auto chainSettings = getChainSettings(apvts); // attache la class chainSetting de nos paramêtres
 
-            //bool myBypass = toggleBypas;
-             //-----------------------------------------------------------------------nouvelle version disto-------------------------------------------------//
-            
             
             // processing disto
 
@@ -190,24 +186,53 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
                 const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB)); // la disto est egal a 2/ par pi multiplie par la atan du input x la valeur du knob de drive
 
-                auto melange = input * (1.0 - chainSettings.mix) + disto * chainSettings.mix; // le melange dry/wet du signal est egal au input multiplie par 1 - le mix(100%) + la disto multiplie le mix(100%) 
+                auto dryWet = chainSettings.mix / 100; // converti une valeur sur 100 en float de 0 a 1
+
+                auto melange = input * (1.0 - dryWet) + disto * dryWet; // le melange dry/wet du signal est egal au input multiplie par 1 - le mix(100%) + la disto multiplie le mix(100%) 
 
                 melange *= juce::Decibels::decibelsToGain(chainSettings.volumeDB); // le volume multipli le signal qui sort su melange dry/wet
 
                 *channelData = melange; //
 
                 channelData++; // increment le point pour que ca pointe vers le prochain channel data
+
+
+
+                // rms value calculation
+
+                rmsLevelLeft.skip(buffer.getNumSamples());
+                rmsLevelRight.skip(buffer.getNumSamples());
+
+                {
+                    const auto value = Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples())); //rms L
+                    if (value < rmsLevelLeft.getCurrentValue())
+                        rmsLevelLeft.setTargetValue(value);
+                    else
+                        rmsLevelLeft.setCurrentAndTargetValue(value);
+                }
+
+                {
+                    const auto value = Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples())); //rms R
+                    if (value < rmsLevelRight.getCurrentValue())
+                        rmsLevelRight.setTargetValue(value);
+                    else
+                        rmsLevelRight.setCurrentAndTargetValue(value);
+                }
             }
 
             else {
 
-                *channelData;
-            }
-                
+                channelData;
 
+            }
+
+            
         }                                                                  
        
     }
+                
+
+
 }
 
 
@@ -269,6 +294,18 @@ void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBy
     
 }
 
+
+float DistoVSTAudioProcessor::getRmsValue(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeft.getCurrentValue();
+
+    if (channel == 1)
+        return rmsLevelRight.getCurrentValue();
+    return 0.0f;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
@@ -302,7 +339,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DistoVSTAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVEDB", "DriveDB", 0.0f, 20.0f, 0.0f));
     
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("MIX", "Mix", 0.0f, 1.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("MIX", "Mix", 0.0f, 100.0f, 100.0f)); // valeur  sur 100 float en pourcentage
    
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUMEDB", "VolumeDB", -48.0f, 48.0f, 0.0f));

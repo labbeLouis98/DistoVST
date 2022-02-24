@@ -6,6 +6,12 @@
               pluginAAXCategory="2,64" cppLanguageStandard="17" companyName="AudioShinobi">
   <MAINGROUP id="A0DNlW" name="DistoVST">
     <GROUP id="{D292BCBF-12A8-D9D0-A3AD-9E2E5798B4A9}" name="Source">
+      <GROUP id="{25A24CF8-5732-0963-D78D-C178400E7543}" name="Component">
+        <FILE id="mYEuCc" name="HorizontalMeter.h" compile="0" resource="0"
+              file="Source/HorizontalMeter.h"/>
+        <FILE id="KSLXqj" name="VerticalMeterSoft.h" compile="0" resource="0"
+              file="Source/VerticalMeterSoft.h"/>
+      </GROUP>
       <FILE id="oSmG2J" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="xsDqOq" name="PluginProcessor.h" compile="0" resource="0"

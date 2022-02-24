@@ -10,24 +10,29 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-
+#include "VerticalMeterSoft.h"
+//#include "Component/HorizontalMeter.h"
 
 
 //==============================================================================
 /**
 */
-class DistoVSTAudioProcessorEditor  : public juce::AudioProcessorEditor
+class DistoVSTAudioProcessorEditor  : public juce::AudioProcessorEditor, public Timer
 {
 public:
     DistoVSTAudioProcessorEditor (DistoVSTAudioProcessor&);
     ~DistoVSTAudioProcessorEditor() override;
+
+
+    void timerCallback() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-
+    
+   
 
     //ImageComponent audioShinobiBrandComponent;
 
@@ -57,12 +62,10 @@ private:
 
     void setMenu(viator_gui::Menu& menu);
 
-
-
-
-     // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+  
     DistoVSTAudioProcessor& audioProcessor; // audioP ref
+
+    Gui::VerticalMeter verticalMeterL, verticalMeterR; // verticals
 
     public:
     

@@ -76,24 +76,25 @@ public:
 
     void updateParams(const float input, const float drive, const float mix, const float volume);
 
+
+    float getRmsValue(const int channel) const; 
+
+    
+
 private:
+
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
 
-
-    //using Monochain = juce::dsp::ProcessorChain<>
-    //MonoChain leftChain
-
    const float piDivisor = 2.f / juce::MathConstants<float>::pi; // constante piDivisor pour simplifier la formule de distortion , 2 divise pi 
 
-    //juce::ScopedPointer<juce::AudioProcessorValueTreeState> state;
+    
+   LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight; // smooth la valeur des valeurs rms
+
 
 
    // Bypass Toggle
-   
-   bool myBypass = false; 
-
    
    //
     //==============================================================================

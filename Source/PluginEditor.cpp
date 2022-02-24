@@ -15,7 +15,7 @@ DistoVSTAudioProcessorEditor::DistoVSTAudioProcessorEditor (DistoVSTAudioProcess
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
    
-
+    
     setFaderParams(inputFader); // reference a la construction dun slider (void en bas)
     setSliderParams(driveKnob);
     setSliderParams(mixKnob);
@@ -36,10 +36,16 @@ DistoVSTAudioProcessorEditor::DistoVSTAudioProcessorEditor (DistoVSTAudioProcess
 
     bypassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "BYPASS", toggleBypass);
 
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    
+
     setSize (1100, 740); //taille du plugin
 
+    addAndMakeVisible(verticalMeterL); // make visible the meters
+    addAndMakeVisible(verticalMeterR);
+
+    startTimerHz(30);
+
+    // startTimer de lanimation
 
     //images implementation
     /*
@@ -59,6 +65,17 @@ DistoVSTAudioProcessorEditor::~DistoVSTAudioProcessorEditor()
 {
 }
 
+
+
+void DistoVSTAudioProcessorEditor::timerCallback()
+{
+    verticalMeterL.setLevel(audioProcessor.getRmsValue(0)); //fetch rms value sur chaques channels L et R
+    verticalMeterR.setLevel(audioProcessor.getRmsValue(1));
+
+    verticalMeterL.repaint();
+    verticalMeterR.repaint();
+}
+
 //==============================================================================
 void DistoVSTAudioProcessorEditor::paint (juce::Graphics& g)
 {
@@ -66,19 +83,21 @@ void DistoVSTAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::black);
     g.setFont (15.0f);
-    
+
+    /*
     g.drawText("Input", ((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);  // ecrit un texte a lemplacement design
     g.drawText("Drive", ((getWidth() / 5) * 2) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
     g.drawText("Mix", ((getWidth() / 5) * 3) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
     g.drawText("Volume", ((getWidth() / 5) * 4) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
-    
+    */
+
     auto backgroundImage = juce::ImageCache::getFromMemory(BinaryData::vstBackground_png, BinaryData::vstBackground_pngSize); //vas chercher les data de l'image
     g.drawImageAt(backgroundImage, 0, 0);
     
     auto brandName = juce::ImageCache::getFromMemory(BinaryData::vstbrandName_png, BinaryData::vstbrandName_pngSize); //vas chercher les data de l'image
 
-    g.drawImageAt(brandName, ((getWidth() / 2) - 376 ) * 2, 40, juce::RectanglePlacement::doNotResize); // dessine la position du brand name
-   
+    g.drawImageAt(brandName, ((getWidth() / 2) - 376 ) * 2 +20, 40, juce::RectanglePlacement::doNotResize); // dessine la position du brand name
+
 
 }
 
@@ -118,17 +137,20 @@ void DistoVSTAudioProcessorEditor::resized()
     flexbox.flexWrap = FlexBox::Wrap::wrap;
     flexbox.alignContent = FlexBox::AlignContent::center;
     flexbox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    
     //flexbox.alignItems = FlexBox::AlignItems::center;
     
     // array ou on met les items
     Array<FlexItem> itemArray;
     
-    itemArray.add(FlexItem(100, 200, inputFader));
-    itemArray.add(FlexItem(100, 200, volumeFader));
-    //itemArray.add(FlexItem(100,100, audioShinobiBrandComponent));
+    itemArray.add(FlexItem(90, 240, inputFader));
+    itemArray.add(FlexItem(50, 50, verticalMeterL)); // position des meter et leurs tailles
+    itemArray.add(FlexItem(50, 50, verticalMeterR));
+    itemArray.add(FlexItem(90, 240, volumeFader));
+ 
 
     flexbox.items = itemArray;
-    flexbox.performLayout(bounds.removeFromTop(bounds.getHeight() / 2));
+    flexbox.performLayout(bounds.removeFromTop((bounds.getHeight() / 2) -10));
 
 
     /*------------------------------------------------*/
@@ -153,6 +175,9 @@ void DistoVSTAudioProcessorEditor::resized()
     /*------------------------------------------------*/
     
 }
+
+
+// classses pour mes components dial, fader, bouton etc...
 
 void DistoVSTAudioProcessorEditor::setSliderParams(viator_gui::Dial& dial)   // fonction qui definit un slider 
 
@@ -190,7 +215,8 @@ void DistoVSTAudioProcessorEditor::setFaderParams(viator_gui::Fader& fader)   //
     addAndMakeVisible(fader);
     fader.setColour(juce::Slider::ColourIds::textBoxTextColourId, juce::Colours::darkgrey.darker(0.5f)); //text color
     fader.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::blueviolet.brighter(0.5f));
-    const Font font(juce::Font("Helvetica", 16.0f, juce::Font::FontStyleFlags::plain));
+
+    
    
     fader.forceShadow();
     
@@ -207,12 +233,7 @@ void DistoVSTAudioProcessorEditor::setToggle(viator_gui::Toggle& toggle){
     
     toggle.setToggleStyle(viator_gui::Toggle::ToggleStyle::kPower);
 
-    /*
-    mouseEnter(const juce::MouseEvent & event){
-        toggle.setColour(juce::ToggleButton::tickColourId, juce::Colours::blueviolet.brighter(0.9f));
-
-    }
-    */
+   
 }
 
 
