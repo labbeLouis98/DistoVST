@@ -32,7 +32,7 @@ namespace Gui
             
             //scaledY sur laxe des Y pour le vertical
 
-            //g.fillRoundedRectangle(bounds.removeFromTop(scaledY), 2.0f); // from bottom pour avoir un meter vertical
+             // from bottom pour avoir un meter vertical
             g.fillRoundedRectangle(bounds.removeFromBottom(scaledY), 2.0f);
             
         }
