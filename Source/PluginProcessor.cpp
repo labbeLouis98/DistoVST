@@ -184,8 +184,9 @@ void DistoVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
                 const auto input = *channelData * juce::Decibels::decibelsToGain(chainSettings.inputDB);
 
-                const auto disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB)); // la disto est egal a 2/ par pi multiplie par la atan du input x la valeur du knob de drive
+                auto const disto = piDivisor * std::atanf(input * juce::Decibels::decibelsToGain(chainSettings.driveDB)) *2; // la disto est egal a 2/ par pi multiplie par la atan du input * la valeur du drive
 
+             
                 auto dryWet = chainSettings.mix / 100; // converti une valeur sur 100 en float de 0 a 1
 
                 auto melange = input * (1.0 - dryWet) + disto * dryWet; // le melange dry/wet du signal est egal au input multiplie par 1 - le mix(100%) + la disto multiplie le mix(100%) 
@@ -257,11 +258,6 @@ void DistoVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     juce::MemoryOutputStream mos(destData, true); // save la state du plugin
     apvts.state.writeToStream(mos);
 
-    /*
-    auto state = apvts.copyState();
-    std::unique_ptr<juce::XmlElement> xml(state.createXml());
-    copyXmlToBinary(*xml, destData);
-    */
 }
 
 void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -279,19 +275,6 @@ void DistoVSTAudioProcessor::setStateInformation (const void* data, int sizeInBy
 
     }
 
-    /*
-    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-
-    if (xmlState.get() != nullptr) 
-    {
-        if (xmlState->hasTagName(apvts.state.getType())) {
-
-            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
-        }
-            
-    }
-        */
-    
 }
 
 
@@ -336,7 +319,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DistoVSTAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterFloat>("INPUTDB", "InputDB", -48.0f, 48.0f, 0.0f)); 
    
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVEDB", "DriveDB", 0.0f, 20.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVEDB", "DriveDB", 0.0f, 24.0f, 0.0f));
     
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("MIX", "Mix", 0.0f, 100.0f, 100.0f)); // valeur  sur 100 float en pourcentage

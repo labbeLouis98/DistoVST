@@ -40,25 +40,47 @@ DistoVSTAudioProcessorEditor::DistoVSTAudioProcessorEditor (DistoVSTAudioProcess
 
     setSize (1100, 740); //taille du plugin
 
-    addAndMakeVisible(verticalMeterL); // make visible the meters
+    addAndMakeVisible(verticalMeterL); // rendre les meter visible
     addAndMakeVisible(verticalMeterR);
 
-    startTimerHz(30);
+    //labels pour mes params
+    //style pour les text
+    //attachement au slider
+    
+    //input
+    inputLabel.setText("Input", juce::dontSendNotification);
+    inputLabel.attachToComponent(&inputFader,false);
+    inputLabel.setFont(18.0f);
+    inputLabel.setColour(juce::Label::ColourIds::textColourId,juce::Colours::darkgrey.darker(0.5f));
+    inputLabel.setJustificationType(Justification::centred);
+
+    //Drive
+    driveLabel.setText("Drive", juce::dontSendNotification);
+    driveLabel.attachToComponent(&driveKnob, false);
+    driveLabel.setFont(18.0f);
+    driveLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::darkgrey.darker(0.5f));
+    driveLabel.setJustificationType(Justification::centred);
+
+    // Mix
+    mixLabel.setText("Mix", juce::dontSendNotification);
+    mixLabel.attachToComponent(&mixKnob, false);
+    mixLabel.setFont(18.0f);
+    mixLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::darkgrey.darker(0.5f));
+    mixLabel.setJustificationType(Justification::centred);
+
+    //Output Volume
+    volumeLabel.setText("Output", juce::dontSendNotification);
+    volumeLabel.attachToComponent(&volumeFader, false);
+    volumeLabel.setFont(18.0f);
+    volumeLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::darkgrey.darker(0.5f));
+    volumeLabel.setJustificationType(Justification::centred);
 
     // startTimer de lanimation
-
-    //images implementation
-    /*
-    auto audioShinobiBrand = juce::ImageCache::getFromMemory(BinaryData::vstbrandName_png, BinaryData::vstbrandName_pngSize); //vas chercher les data de l'image
+    startTimerHz(30);
 
     
-    if (!audioShinobiBrand.isNull())
-        audioShinobiBrandComponent.setImage(audioShinobiBrand, RectanglePlacement::stretchToFit);  // facon de savoir si l'image est à la bonne place
-    else
-        jassert(!audioShinobiBrand.isNull());
 
-    addAndMakeVisible(audioShinobiBrandComponent); // faire aparaitre l'image
-    */
+    
 }
 
 DistoVSTAudioProcessorEditor::~DistoVSTAudioProcessorEditor()
@@ -84,20 +106,11 @@ void DistoVSTAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::black);
     g.setFont (15.0f);
 
-    /*
-    g.drawText("Input", ((getWidth() / 5) * 1) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);  // ecrit un texte a lemplacement design
-    g.drawText("Drive", ((getWidth() / 5) * 2) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
-    g.drawText("Mix", ((getWidth() / 5) * 3) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
-    g.drawText("Volume", ((getWidth() / 5) * 4) - (100 / 2), (getHeight() / 2) + 5, 100, 100, juce::Justification::centred, false);
-    */
-
-    auto backgroundImage = juce::ImageCache::getFromMemory(BinaryData::vstBackground_png, BinaryData::vstBackground_pngSize); //vas chercher les data de l'image
+   
+    
+    auto backgroundImage = juce::ImageCache::getFromMemory(BinaryData::vstBackground2_png , BinaryData::vstBackground2_pngSize); //vas chercher les data de l'image
     g.drawImageAt(backgroundImage, 0, 0);
     
-    auto brandName = juce::ImageCache::getFromMemory(BinaryData::vstbrandName_png, BinaryData::vstbrandName_pngSize); //vas chercher les data de l'image
-
-    g.drawImageAt(brandName, ((getWidth() / 2) - 376 ) * 2 +20, 40, juce::RectanglePlacement::doNotResize); // dessine la position du brand name
-
 
 }
 
@@ -125,7 +138,7 @@ void DistoVSTAudioProcessorEditor::resized()
     // ajoute des items dans le tableau du conteneur
     Array<FlexItem> itemArrayHead;
     itemArrayHead.add(FlexItem(80,80,toggleBypass).withMargin(20));
-    itemArrayHead.add(FlexItem(80, 80, menu).withMargin(20));
+    //itemArrayHead.add(FlexItem(80, 80, menu).withMargin(20));
 
     flexboxHead.items = itemArrayHead;
     flexboxHead.performLayout(bounds.removeFromTop((bounds.getHeight() / 3) - 90));
@@ -142,7 +155,6 @@ void DistoVSTAudioProcessorEditor::resized()
     
     // array ou on met les items
     Array<FlexItem> itemArray;
-    
     itemArray.add(FlexItem(90, 240, inputFader));
     itemArray.add(FlexItem(50, 50, verticalMeterL)); // position des meter et leurs tailles
     itemArray.add(FlexItem(50, 50, verticalMeterR));
@@ -216,6 +228,7 @@ void DistoVSTAudioProcessorEditor::setFaderParams(viator_gui::Fader& fader)   //
     fader.setColour(juce::Slider::ColourIds::textBoxTextColourId, juce::Colours::darkgrey.darker(0.5f)); //text color
     fader.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::blueviolet.brighter(0.5f));
 
+    
     
    
     fader.forceShadow();
